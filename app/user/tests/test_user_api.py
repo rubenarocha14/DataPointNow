@@ -12,11 +12,13 @@ CREATE_USER_URL = reverse('user:create')
 
 # Helper function that will create a user for testing
 # **params allows us to pass any params/dictionary in
+
 def create_user(**params):
     # Create and return a new user
     return get_user_model().objects.create_user(**params)
 
 # Public Tests (Auth not required)
+
 class PublicUserApiTests(TestCase):
     # Test the public features of the user API
     def setUp(self):
@@ -26,9 +28,9 @@ class PublicUserApiTests(TestCase):
     def test_create_user_successful(self):
         # Test create user successful
         payload = {
-            'email' : 'test@example.com',
-            'password' : 'testpass123',
-            'name': 'Test Name'
+            'email':'test@example.com',
+            'password':'testpass123',
+            'name':'Test Name'
         }
         # Makes a post request to the URL to create a new user
         res = self.client.post(CREATE_USER_URL, payload)
@@ -40,9 +42,9 @@ class PublicUserApiTests(TestCase):
     def test_create_user_with_email_exists_error(self):
         # Test create email fails if user email exists
         payload = {
-            'email' : 'test@example.com',
-            'password' : 'testpass123',
-            'name' : 'User One',
+            'email':'test@example.com',
+            'password':'testpass123',
+            'name':'User One',
         }
 
         create_user(**payload)
@@ -55,9 +57,9 @@ class PublicUserApiTests(TestCase):
         # Test an error thrown if password less than 5 chars
 
         payload = {
-            'email' : 'test@example.com',
-            'password' : 'pw',
-            'name': 'Test Name'
+            'email':'test@example.com',
+            'password':'pw',
+            'name':'Test Name'
         }
 
         res = self.client.post(CREATE_USER_URL, payload)
@@ -67,9 +69,5 @@ class PublicUserApiTests(TestCase):
             email=payload['email']
         ).exists()
         self.assertFalse(user_exists)
-
-
-
-
 
 # Private Tests (Auth Req.)

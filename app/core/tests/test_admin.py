@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import Client
 
+
 class AdminSiteTests(TestCase):
     # Test Django admin
 
@@ -14,7 +15,7 @@ class AdminSiteTests(TestCase):
         # Allows us to make requests
         self.client = Client()
         # Creates a test superuser
-        self.admin_user=get_user_model().objects.create_superuser(
+        self.admin_user = get_user_model().objects.create_superuser(
             email='admin@example.com',
             password='test123',
         )

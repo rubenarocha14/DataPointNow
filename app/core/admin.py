@@ -5,6 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 from core import models
 
+
 class UserAdmin(BaseUserAdmin):
     # Define the admin pages for users
 
@@ -28,10 +29,10 @@ class UserAdmin(BaseUserAdmin):
         (
             _('Important dates'),
             {
-            'fields':
-            (
-                'last_login',
-            )
+                'fields':
+                (
+                    'last_login',
+                )
 
             }
         )
@@ -58,5 +59,6 @@ class UserAdmin(BaseUserAdmin):
         }
     ),
 )
+
 
 admin.site.register(models.User, UserAdmin)
