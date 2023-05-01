@@ -70,7 +70,9 @@ class PublicUserApiTests(TestCase):
         self.assertEqual(
             res.status_code, status.HTTP_REQUEST_400_BAD_REQUEST
         )  # noqa: E501
-        user_exists = get_user_model().objects.filter(email=payload["email"]).exists()
+        user_exists = (
+            get_user_model().objects.filter(email=payload["email"]).exists()
+        )  # noqa: E501
         self.assertFalse(user_exists)
 
 
