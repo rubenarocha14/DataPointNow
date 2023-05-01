@@ -1,7 +1,7 @@
 # DB Models
 
 # Allows us to define new models
-from django.db import models
+from django.db import models  # noqa
 
 # Base user defines all of the fields and methods
 # needed for the predef user model
