@@ -10,6 +10,9 @@ from rest_framework import status
 # Reverse() allows us to get the url of the view we pass as a param
 CREATE_USER_URL = reverse("user:create")
 
+TOKEN_URL = reverse("user:token")
+ME_URL = reverse("user:me")
+
 # Helper function that will create a user for testing
 # **params allows us to pass any params/dictionary in
 
@@ -75,5 +78,91 @@ class PublicUserApiTests(TestCase):
         )  # noqa: E501
         self.assertFalse(user_exists)
 
+    def test_create_token_for_user(self):
+        # Tests token created on valid credentials
+        user_details = {
+            "email": "test@example.com",
+            "password": "testpass123",
+            "name": "Test Name",
+        }
+
+        create_user(**user_details)
+
+        payload = {"email": user_details["email"], "password": user_details["password"]}
+
+        res = self.client.post(TOKEN_URL, payload)
+
+        self.assertIn("token", res.data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_error_if_bad_credentials(self):
+        user_details = {
+            "name": "Test Name",
+            "email": "test@example.com",
+            "password": "goodpass",
+        }
+
+        create_user(**user_details)
+
+        payload = {"email": "test@example.com", "password": "badpass"}
+
+        res = self.client.post(TOKEN_URL, payload)
+
+        self.assertNotIn("token", res.data)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_error_for_no_password(self):
+        # Test posting black password results in error
+
+        payload = {"email": "test@example.com", "password": ""}
+
+        res = self.client.post(TOKEN_URL, payload)
+
+        self.assertNotIn("token", res.data)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_user_unauthorized(self):
+        # Test auth is required for users
+        res = self.client.get(ME_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 # Private Tests (Auth Req.)
+class PrivateUserApiTests(TestCase):
+    def setUp(self):
+        self.user = create_user(
+            email="test@example.com", password="testpass234", name="Test Name"
+        )
+
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_get_profile_success(self):
+        res = self.client.get(ME_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            res.data,
+            {
+                "name": self.user.name,
+                "email": self.user.email,
+            },
+        )
+
+    def test_poast_me_not_allowed(self):
+        # Test post not allowed for the me endpoint
+        res = self.client.post(ME_URL, {})
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_update_user_profile(self):
+        # Test updating user for auth user
+        payload = {"name": "Updated name", "password": "newpassword123"}
+
+        res = self.client.patch(ME_URL, payload)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.name, payload["name"])
+        self.assertTrue(self.user.check_password(payload["password"]))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
