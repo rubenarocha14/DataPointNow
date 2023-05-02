@@ -88,7 +88,10 @@ class PublicUserApiTests(TestCase):
 
         create_user(**user_details)
 
-        payload = {"email": user_details["email"], "password": user_details["password"]}
+        payload = {
+            "email": user_details["email"],
+            "password": user_details["password"],
+        }  # noqa: E501
 
         res = self.client.post(TOKEN_URL, payload)
 
